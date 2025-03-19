@@ -1,21 +1,22 @@
 package br.com.ganog.springwithllm.controller;
 
 import br.com.ganog.springwithllm.controller.model.MyQuestion;
-import br.com.ganog.springwithllm.controller.model.MyStructuredTemplate;
 import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.image.ImageModel;
 import dev.langchain4j.model.input.Prompt;
-import dev.langchain4j.model.input.structured.StructuredPrompt;
 import dev.langchain4j.model.input.structured.StructuredPromptProcessor;
 import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.model.openai.OpenAiImageModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.MalformedURLException;
 import java.util.List;
 
-import static br.com.ganog.springwithllm.controller.model.MyStructuredTemplate.*;
+import static br.com.ganog.springwithllm.controller.model.MyStructuredTemplate.PromptDish;
 import static dev.langchain4j.model.openai.OpenAiChatModelName.GPT_3_5_TURBO;
 
 @RestController
@@ -52,5 +53,16 @@ public class AgentController {
                 .build();
 
         return customModel.chat(prompt.text());
+    }
+
+    @PostMapping("/image")
+    public String generateImage(@RequestBody MyQuestion myQuestion) throws MalformedURLException {
+
+        ImageModel customImageModel = new OpenAiImageModel.OpenAiImageModelBuilder()
+                .apiKey(openAiKey)
+                .modelName("dall-e-2")
+                .build();
+
+        return customImageModel.generate(myQuestion.question()).content().url().toURL().toString();
     }
 }
